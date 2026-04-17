@@ -11,6 +11,9 @@ require('./ir/index_rerum.js');
 const authorsRouter = require('./routes/authors');
 app.use('/authors', authorsRouter);
 
+const documentsRouter = require('./routes/documents');
+app.use('/documents', documentsRouter);
+
 
 app.get("/health", (req, res) => {
     res.status(200).json({

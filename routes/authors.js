@@ -2,44 +2,52 @@ const express = require('express');
 const router = express.Router();
 const db = require('../ir/index_rerum.js');
 
-function getAuthorById(authorId){
+function getAuthorById(authorId) {
     const author = db.prepare(`
-    SELECT * 
-    FROM authors
-    WHERE id = ?`).get(authorId);
+        SELECT *
+        FROM authors
+        WHERE id = ?
+    `).get(authorId);
 
-    if (!author){
+    if (!author) {
         return null;
     }
+
     return author;
 }
 
-router.get('/',(req,res)=>{
+router.get('/', (req, res) => {
     try {
-        const author = db.prepare(`SELECT * FROM authors ORDER BY last_name`).all();
-        res.json(author);
-    }
-    catch(err){
-        res.status(500).json({error:`Error ${req}`});
-    }
-})
+        const authors = db.prepare(`
+            SELECT *
+            FROM authors
+            ORDER BY name
+        `).all();
 
-router.get('/:id',(req,res)=>{
+        res.json(authors);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+router.get('/:id', (req, res) => {
     const id = Number(req.params.id);
 
-    if(!Number.isInteger(id)) {
-        return res.status(400).json({error: 'Not a number'});
+    if (!Number.isInteger(id)) {
+        return res.status(400).json({ error: 'Not a number' });
     }
-    try{
+
+    try {
         const author = getAuthorById(id);
-        if(!author){
-            return res.status(404).json({error: 'Not a author'});
+
+        if (!author) {
+            return res.status(404).json({ error: 'Not an author' });
         }
+
         res.json(author);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
     }
-    catch(err){
-        res.status(500).json({error:err});
-    }
-})
+});
 
 module.exports = router;
