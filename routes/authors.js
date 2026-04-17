@@ -21,7 +21,7 @@ router.get('/', (req, res) => {
         const authors = db.prepare(`
             SELECT *
             FROM authors
-            ORDER BY name
+            ORDER BY id
         `).all();
 
         res.json(authors);
