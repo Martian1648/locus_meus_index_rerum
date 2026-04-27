@@ -14,6 +14,12 @@ app.use('/authors', authorsRouter);
 const documentsRouter = require('./routes/documents');
 app.use('/documents', documentsRouter);
 
+const usersRouter = require('./routes/users');
+app.use('/users', usersRouter);
+
+const checkedOutsRouter = require('./routes/checked_outs');
+app.use('/checked_outs', checkedOutsRouter);
+
 
 app.get("/health", (req, res) => {
     res.status(200).json({
