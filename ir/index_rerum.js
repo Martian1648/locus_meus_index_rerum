@@ -7,21 +7,23 @@ db.pragma('foreign_keys = ON');
 
 db.exec(`
 CREATE TABLE IF NOT EXISTS authors(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    first_name TEXT NOT NULL,
-    middle_name TEXT,
-    last_name TEXT NOT NULL,
-    suffix TEXT,
-    birth_year TEXT,
-    death_year TEXT NOT NULL
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    birth TEXT NOT NULL,
+    death TEXT NOT NULL,
+    location TEXT NOT NULL,
+    occupation TEXT,
+    link TEXT,
+    image TEXT
 );
 
 CREATE TABLE IF NOT EXISTS documents(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
+    id INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    short_title TEXT NOT NULL,
+    year_published INTEGER,
+    language TEXT NOT NULL,
     author_id INTEGER NOT NULL,
-    type TEXT,
-    publish_date TEXT,
     link TEXT NOT NULL,
     FOREIGN KEY (author_id) REFERENCES authors(id)
 );
