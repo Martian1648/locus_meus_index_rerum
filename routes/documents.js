@@ -4,9 +4,10 @@ const db = require('../ir/index_rerum.js');
 
 function getDocumentById(documentId) {
     const document = db.prepare(`
-        SELECT *
+        SELECT documents.*, authors.name AS author_name
         FROM documents
-        WHERE id = ?
+        JOIN authors ON documents.author_id = authors.id
+        WHERE documents.id = ?
     `).get(documentId);
 
     if (!document) {
@@ -19,8 +20,9 @@ function getDocumentById(documentId) {
 router.get('/', (req, res) => {
     try {
         const documents = db.prepare(`
-            SELECT *
+            SELECT documents.*, authors.name AS author_name
             FROM documents
+             JOIN authors ON documents.author_id = authors.id
             ORDER BY title
         `).all();
 

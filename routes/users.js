@@ -16,6 +16,34 @@ function getUserById(userId) {
     return user;
 }
 
+function getUserByName(name) {
+    const user = db.prepare(`
+        SELECT *
+        FROM users
+        WHERE name = ?
+    `).get(name);
+
+    if (!user) {
+        return null;
+    }
+
+    return user;
+}
+
+router.get('/', (req, res) => {
+    try {
+        const users = db.prepare(`
+            SELECT *
+            FROM users
+            ORDER BY id
+        `).all();
+
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 router.get('/:id', (req, res) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) {
@@ -37,22 +65,19 @@ router.get('/:id', (req, res) => {
 
 router.post('/',(req, res) => {
     const name = String(req.body.name);
-    if (!Number.isInteger(id)) {
-        return res.status(400).json({ error: 'Not a number' });
+    if (!name) {
+        return res.status(400).json({ error: 'Not a name' });
     }
     try {
-        const user = db.prepare(
-            `SELECT * FROM users WHERE name = ?`
-        )
-        .get(name);
+        const user = getUserByName(name);
         if (user) {
-            return res.status(400).json(`${user.name} is already in use`);
+            return res.status(200).json(user);
         }
         const result = db.prepare(`
             INSERT INTO users (name) VALUES (?);`)
-            .get(name);
-
-        res.status(200).json(result);
+            .run(name);
+        const newUser = getUserById(result.lastInsertRowid);
+        res.status(201).json(newUser);
     }
     catch (err) {
         res.status(500).json({ error: 'Server error' });

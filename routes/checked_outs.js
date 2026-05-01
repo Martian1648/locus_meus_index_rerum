@@ -18,6 +18,20 @@ function getCheckedOutById(checkedOutId) {
     return checkedOut;
 }
 
+router.get('/', (req, res) => {
+    try {
+        const checkedOuts = db.prepare(`
+            SELECT *
+            FROM checked_outs
+            ORDER BY id
+        `).all();
+
+        res.json(checkedOuts);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 router.get('/:id', (req, res) => {
     const id = Number(req.params.id);
 
@@ -43,10 +57,19 @@ router.get('/user/:userId', (req, res) => {
     }
     try {
         const checkedOuts = db.prepare(`
-            SELECT *
-            FROM checked_outs
-            WHERE user_id = ?
-            ORDER BY last_opened DESC
+            SELECT
+                co.id,
+                co.document_id,
+                co.last_opened,
+                co.bookmark_page,
+                d.short_title,
+                d.link,
+                a.name AS author_name
+            FROM checked_outs co
+                     JOIN documents d ON d.id = co.document_id
+                     JOIN authors a ON a.id = d.author_id
+            WHERE co.user_id = ?
+            ORDER BY co.last_opened DESC
         `).all(userId);
         res.json(checkedOuts);
     } catch (err) {
@@ -72,6 +95,13 @@ router.post('/', (req, res) => {
             .get(documentId);
         if (!document) {
             return res.status(404).json({ error: 'Not a document' });
+        }
+        const existing = db.prepare(`
+                SELECT id FROM checked_outs
+                WHERE user_id = ? AND document_id = ?
+            `).get(userId, documentId);
+        if (existing) {
+            return res.status(409).json({ error: 'Document already checked out' });
         }
         const { count } = db.prepare(`
             SELECT COUNT(*) AS count
@@ -111,7 +141,7 @@ router.delete('/:id', (req, res) => {
     }
 });
 
-router.patch('/:id/last_opened', (req, res) => {
+router.post('/:id/last_opened', (req, res) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) {
         return res.status(400).json({ error: 'Not a number' });
@@ -132,7 +162,7 @@ router.patch('/:id/last_opened', (req, res) => {
     }
 });
 
-router.patch('/:id/bookmark', (req, res) => {
+router.post('/:id/bookmark', (req, res) => {
     const id = Number(req.params.id);
     const bookmarkPage = Number(req.body.bookmark_page);
     if (!Number.isInteger(id)) {

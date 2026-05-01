@@ -25,11 +25,11 @@ CREATE TABLE  users(
                                     name TEXT NOT NULL
 );
 CREATE TABLE checked_outs(
-                                           id INTEGER PRIMARY KEY,
-                                           user_id INTEGER NOT NULL,
-                                           document_id INTEGER NOT NULL,
-                                           last_opened TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                           bookmark_page INTEGER NOT NULL DEFAULT 0,
-                                           FOREIGN KEY (user_id) REFERENCES users(id),
-                                           FOREIGN KEY (document_id) REFERENCES documents(id)
+   id INTEGER PRIMARY KEY,
+   user_id INTEGER NOT NULL,
+   document_id INTEGER NOT NULL,
+   last_opened TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   bookmark_page INTEGER NOT NULL DEFAULT 0,
+   FOREIGN KEY (user_id) REFERENCES users(id),
+   FOREIGN KEY (document_id) REFERENCES documents(id)
 );
